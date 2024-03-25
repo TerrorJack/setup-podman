@@ -1,0 +1,8 @@
+name: setup-podman
+description: Setup latest podman in GitHub Actions Ubuntu runner images
+runs:
+  using: composite
+  steps:
+    - if: ${{ runner.os == 'Linux' }}
+      run: ${{ github.action_path }}/setup.sh
+      shell: bash

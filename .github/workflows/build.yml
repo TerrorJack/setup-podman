@@ -1,0 +1,39 @@
+name: build
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: build-${{ matrix.arch }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        arch:
+          - amd64
+          - arm64/v8
+    steps:
+
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: setup-podman
+        uses: ./
+
+      - name: test-podman
+        run: |
+          podman run \
+            --arch ${{ matrix.arch }} \
+            --init \
+            --network host \
+            --rm \
+            --tmpfs /tmp:exec \
+            --volume $PWD:/workspace \
+            --workdir /workspace \
+            alpine:edge \
+            sh -c "cd /tmp && apk add curl && curl -f -L --retry 5 https://github.com/microsoft/mimalloc/archive/refs/tags/v2.1.2.tar.gz | tar xz --strip-components=1"
