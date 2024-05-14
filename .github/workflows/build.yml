@@ -9,14 +9,17 @@ on:
 
 jobs:
   build:
-    name: build-${{ matrix.arch }}
-    runs-on: ubuntu-latest
+    name: build-${{ matrix.arch }}-${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         arch:
           - amd64
           - arm64/v8
+        os:
+          - ubuntu-24.04
+          - ubuntu-22.04
     steps:
 
       - name: checkout
@@ -27,6 +30,8 @@ jobs:
 
       - name: test-podman
         run: |
+          podman info
+          
           podman run \
             --arch ${{ matrix.arch }} \
             --init \
@@ -36,4 +41,4 @@ jobs:
             --volume $PWD:/workspace \
             --workdir /workspace \
             alpine:edge \
-            sh -c "cd /tmp && apk add curl && curl -f -L --retry 5 https://github.com/microsoft/mimalloc/archive/refs/tags/v2.1.2.tar.gz | tar xz --strip-components=1"
+            sh -c "cd /tmp && apk add curl && curl -f -L --retry 5 https://github.com/microsoft/mimalloc/archive/refs/tags/v2.1.6.tar.gz | tar xz --strip-components=1"
