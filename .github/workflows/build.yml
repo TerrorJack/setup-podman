@@ -29,9 +29,20 @@ jobs:
         uses: ./
 
       - name: test-podman
+        working-directory: ${{ runner.temp }}
         run: |
           podman info
-          
+
+          curl -f -L --retry 5 https://github.com/tweag/rust-alpine-mimalloc/archive/refs/heads/master.tar.gz | tar xz --strip-components=1
+
+          podman build \
+            --arch ${{ matrix.arch }} \
+            --network host \
+            --pull \
+            --squash-all \
+            --tag rust:alpine-mimalloc \
+            .
+
           podman run \
             --arch ${{ matrix.arch }} \
             --init \
@@ -40,5 +51,7 @@ jobs:
             --tmpfs /tmp:exec \
             --volume $PWD:/workspace \
             --workdir /workspace \
-            alpine:edge \
-            sh -c "cd /tmp && apk add curl && curl -f -L --retry 5 https://github.com/microsoft/mimalloc/archive/refs/tags/v2.1.6.tar.gz | tar xz --strip-components=1"
+            rust:alpine-mimalloc \
+            /workspace/test.sh
+          MIMALLOC_VERBOSE=1 ./bin/names
+          file ./bin/names
