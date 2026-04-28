@@ -11,11 +11,5 @@ echo "deb [signed-by=/usr/share/keyrings/devel_kubic_libcontainers_unstable.gpg]
 sudo apt update
 
 exec sudo apt install -y \
-  buildah \
-  conmon \
-  crun \
   fuse-overlayfs \
-  podman \
-  qemu-user-static \
-  skopeo \
-  slirp4netns
+  podman

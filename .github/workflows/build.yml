@@ -9,21 +9,17 @@ on:
 
 jobs:
   build:
-    name: build-${{ matrix.arch }}-${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        arch:
-          - amd64
-          - arm64/v8
         os:
           - ubuntu-24.04
-          - ubuntu-22.04
+          - ubuntu-24.04-arm
     steps:
 
       - name: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: setup-podman
         uses: ./
@@ -36,7 +32,6 @@ jobs:
           curl -f -L --retry 5 https://github.com/tweag/rust-alpine-mimalloc/archive/refs/heads/master.tar.gz | tar xz --strip-components=1
 
           podman build \
-            --arch ${{ matrix.arch }} \
             --network host \
             --pull \
             --squash-all \
@@ -44,7 +39,6 @@ jobs:
             .
 
           podman run \
-            --arch ${{ matrix.arch }} \
             --init \
             --network host \
             --rm \
